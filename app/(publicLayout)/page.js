@@ -3,7 +3,7 @@ import Banner from '@/components/home/Banner';
  import WhyChooseUs from '@/components/home/WhyChooseUs';
  import LatestForumPosts from '@/components/home/LatestForumPosts';
  import BmiCalculator from '@/components/home/BmiCalculator';
-// import MembershipCTA from '@/components/home/MembershipCTA';
+ import MembershipCTA from '@/components/home/MembershipCTA';
 
 export default function HomePage() {
   return (
@@ -13,7 +13,7 @@ export default function HomePage() {
        <WhyChooseUs />
        <LatestForumPosts />
        <BmiCalculator />
-      {/* <MembershipCTA />    */}
+       <MembershipCTA />    
     </>
   );
 }
