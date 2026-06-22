@@ -22,7 +22,7 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <body className={`${geistSans.variable} ${geistMono.variable} bg-black text-white antialiased`}>
+      <body className={`${geistSans.variable} ${geistMono.variable} bg-bg text-gray-200 antialiased`}>
         <QueryProvider>
           <AuthProvider>
             {children}
