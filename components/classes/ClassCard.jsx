@@ -56,7 +56,7 @@ export default function ClassCard({ cls }) {
         </div>
 
         <Link
-          href={`/classes/${cls._id}`}
+          href={`/class-details/${cls._id}`}
           className="mt-4 w-full text-center py-2.5 rounded-lg border border-border font-bold text-sm transition text-gray-300"
           onMouseEnter={(e) => {
             e.currentTarget.style.background = 'linear-gradient(135deg, #00c896, #00a8ff)';
