@@ -24,7 +24,7 @@ export default function Navbar() {
   );
 
   return (
-    <nav className="sticky top-0 z-50 bg-bg/90 backdrop-blur border-b border-border">
+    <nav className="sticky top-0 z-50 border-b border-border" style={{ background: 'rgba(13,17,23,0.85)', backdropFilter: 'blur(16px)' }}>
       <div className="max-w-7xl mx-auto px-6 flex items-center justify-between h-20">
         <Link href="/" className="flex items-center gap-2 text-xl font-extrabold">
           <span className="w-8 h-8 rounded-lg bg-lime/20 text-lime flex items-center justify-center">⚡</span>
