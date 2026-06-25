@@ -1,38 +1,76 @@
-"use client";
-import { useEffect, useState } from "react";
-import axios from "axios";
+'use client';
+
+import { useQuery } from '@tanstack/react-query';
+import axios from 'axios';
+import Link from 'next/link';
+import { authClient } from '@/lib/auth-client';
 
 export default function BookedClassesPage() {
-  const [bookings, setBookings] = useState([]);
+  const { data: session } = authClient.useSession();
+  const user = session?.user;
 
-  useEffect(() => {
-   
-    axios.get("http://localhost:5000/bookings", { withCredentials: true })
-      .then((res) => setBookings(res.data))
-      .catch((err) => console.error(err));
-  }, []);
+  const { data: bookings = [], isLoading } = useQuery({
+    queryKey: ['userBookings', user?.email],
+    enabled: !!user?.email,
+    queryFn: async () => {
+      const res = await axios.get(
+        `${process.env.NEXT_PUBLIC_API_URL}/bookings/user/${user.email}`,
+        { withCredentials: true }
+      );
+      return res.data;
+    },
+  });
 
   return (
-    <div className="p-8">
-      <h1 className="text-2xl font-bold mb-6">My Booked Classes</h1>
-      <table className="w-full text-left border-collapse">
-        <thead>
-          <tr className="border-b border-[#1e2736]">
-            <th className="p-3">Class Name</th>
-            <th className="p-3">Trainer</th>
-            <th className="p-3">Schedule</th>
-          </tr>
-        </thead>
-        <tbody>
-          {bookings.map((item) => (
-            <tr key={item._id} className="border-b border-[#1e2736]">
-              <td className="p-3">{item.className}</td>
-              <td className="p-3">{item.trainerName}</td>
-              <td className="p-3">{item.schedule}</td>
-            </tr>
+    <div>
+      <h1 className="text-3xl font-extrabold mb-8">Booked Classes</h1>
+
+      {isLoading ? (
+        <div className="space-y-3">
+          {[...Array(4)].map((_, i) => (
+            <div key={i} className="h-16 bg-surface border border-border rounded-xl animate-pulse" />
           ))}
-        </tbody>
-      </table>
+        </div>
+      ) : bookings.length === 0 ? (
+        <div className="text-center py-24">
+          <p className="text-5xl mb-4">📅</p>
+          <p className="text-gray-400">No classes booked yet</p>
+          <Link href="/all-classes"
+            className="inline-block mt-4 px-6 py-2 rounded-lg text-sm font-bold text-white"
+            style={{ background: 'linear-gradient(135deg, #00c896, #00a8ff)' }}>
+            Browse Classes
+          </Link>
+        </div>
+      ) : (
+        <div className="bg-surface border border-border rounded-2xl overflow-hidden">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b border-border text-gray-400 text-xs uppercase tracking-wide">
+                <th className="text-left px-6 py-4">Class Name</th>
+                <th className="text-left px-6 py-4 hidden md:table-cell">Trainer</th>
+                <th className="text-left px-6 py-4 hidden lg:table-cell">Schedule</th>
+                <th className="text-left px-6 py-4">Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {bookings.map((b, i) => (
+                <tr key={b._id} className={`border-b border-border ${i % 2 === 0 ? 'bg-bg/30' : ''}`}>
+                  <td className="px-6 py-4 font-semibold">{b.className}</td>
+                  <td className="px-6 py-4 text-gray-400 hidden md:table-cell">{b.trainerName || '—'}</td>
+                  <td className="px-6 py-4 text-gray-400 hidden lg:table-cell">{b.schedule || '—'}</td>
+                  <td className="px-6 py-4">
+                    <Link href={`/classes/${b.classId}`}
+                      className="px-3 py-1.5 rounded-lg text-xs font-bold text-white"
+                      style={{ background: 'linear-gradient(135deg, #00c896, #00a8ff)' }}>
+                      View
+                    </Link>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
     </div>
   );
 }
