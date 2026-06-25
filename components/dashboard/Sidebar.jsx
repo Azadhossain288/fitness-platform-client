@@ -36,9 +36,7 @@ export default function Sidebar({ role }) {
   const { data: session } = authClient.useSession();
 
   const links =
-    role === 'admin' ? adminLinks
-    : role === 'trainer' ? trainerLinks
-    : userLinks;
+    role === 'admin' ? adminLinks : role === 'trainer' ? trainerLinks : userLinks;
 
   const handleLogout = async () => {
     await authClient.signOut();
@@ -46,38 +44,21 @@ export default function Sidebar({ role }) {
   };
 
   return (
-    <aside
-      className="w-64 shrink-0 min-h-screen border-r border-border flex flex-col"
-      style={{ background: '#0d1117' }}
-    >
+    <aside className="w-64 shrink-0 min-h-screen border-r border-border flex flex-col"
+      style={{ background: '#0d1117' }}>
       {/* Logo */}
       <div className="p-6 border-b border-border">
         <Link href="/" className="flex items-center gap-2 text-lg font-extrabold">
-          <span
-            className="w-8 h-8 rounded-lg flex items-center justify-center text-white"
-            style={{ background: 'linear-gradient(135deg, #00c896, #00a8ff)' }}
-          >
-            ⚡
-          </span>
-          Iron
-          <span
-            style={{
-              background: 'linear-gradient(135deg, #00c896, #00a8ff)',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-            }}
-          >
-            Pulse
-          </span>
+          <span className="w-8 h-8 rounded-lg flex items-center justify-center text-white"
+            style={{ background: 'linear-gradient(135deg, #00c896, #00a8ff)' }}>⚡</span>
+          Iron<span style={{ background: 'linear-gradient(135deg, #00c896, #00a8ff)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>Pulse</span>
         </Link>
       </div>
 
       {/* Role badge */}
       <div className="px-6 py-4 border-b border-border">
-        <span
-          className="text-xs font-bold px-3 py-1 rounded-full text-white capitalize"
-          style={{ background: 'linear-gradient(135deg, #00c896, #00a8ff)' }}
-        >
+        <span className="text-xs font-bold px-3 py-1 rounded-full text-white capitalize"
+          style={{ background: 'linear-gradient(135deg, #00c896, #00a8ff)' }}>
           {role}
         </span>
       </div>
@@ -91,16 +72,9 @@ export default function Sidebar({ role }) {
               key={link.href}
               href={link.href}
               className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition"
-              style={
-                isActive
-                  ? {
-                      background:
-                        'linear-gradient(135deg, rgba(0,200,150,0.15), rgba(0,168,255,0.15))',
-                      color: '#00c896',
-                      borderLeft: '3px solid #00c896',
-                    }
-                  : { color: '#9ca3af' }
-              }
+              style={isActive
+                ? { background: 'linear-gradient(135deg, rgba(0,200,150,0.15), rgba(0,168,255,0.15))', color: '#00c896', borderLeft: '3px solid #00c896' }
+                : { color: '#9ca3af' }}
             >
               <span>{link.icon}</span>
               {link.label}
@@ -109,7 +83,7 @@ export default function Sidebar({ role }) {
         })}
       </nav>
 
-      {/* User info + Logout */}
+      {/* User + Logout */}
       <div className="p-4 border-t border-border">
         <div className="flex items-center gap-3 mb-3">
           <img

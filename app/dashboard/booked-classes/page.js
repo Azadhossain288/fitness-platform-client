@@ -59,7 +59,7 @@ export default function BookedClassesPage() {
                   <td className="px-6 py-4 text-gray-400 hidden md:table-cell">{b.trainerName || '—'}</td>
                   <td className="px-6 py-4 text-gray-400 hidden lg:table-cell">{b.schedule || '—'}</td>
                   <td className="px-6 py-4">
-                    <Link href={`/classes/${b.classId}`}
+                    <Link href={`/class-details/${b.classId}`}
                       className="px-3 py-1.5 rounded-lg text-xs font-bold text-white"
                       style={{ background: 'linear-gradient(135deg, #00c896, #00a8ff)' }}>
                       View

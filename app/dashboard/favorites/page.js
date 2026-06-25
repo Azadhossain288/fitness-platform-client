@@ -19,7 +19,23 @@ export default function FavoritesPage() {
         `${process.env.NEXT_PUBLIC_API_URL}/favorites/user/${user.email}`,
         { withCredentials: true }
       );
-      return res.data;
+
+      // class details for every favorites
+      const favoritesWithDetails = await Promise.all(
+        res.data.map(async (fav) => {
+          try {
+            const classRes = await axios.get(
+              `${process.env.NEXT_PUBLIC_API_URL}/classes/${fav.classId}`,
+              { withCredentials: true }
+            );
+            return { ...fav, classDetails: classRes.data };
+          } catch {
+            return { ...fav, classDetails: null };
+          }
+        })
+      );
+
+      return favoritesWithDetails;
     },
   });
 
@@ -59,25 +75,34 @@ export default function FavoritesPage() {
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {favorites.map((fav) => (
-            <div key={fav._id} className="bg-surface border border-border rounded-2xl overflow-hidden">
-              <img src={fav.image} alt={fav.className} className="h-36 w-full object-cover" />
-              <div className="p-4">
-                <h3 className="font-bold mb-1">{fav.className}</h3>
-                <p className="text-sm text-gray-400 mb-1">by {fav.trainerName}</p>
-                <p className="font-bold mb-4"
-                  style={{ background: 'linear-gradient(135deg, #00c896, #00a8ff)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
-                  ${fav.price}
-                </p>
-                <button
-                  onClick={() => removeMutation.mutate(fav._id)}
-                  className="w-full py-2 rounded-lg border border-red-500/30 text-red-400 text-sm font-semibold hover:bg-red-500/10 transition"
-                >
-                  Remove
-                </button>
+          {favorites.map((fav) => {
+            const cls = fav.classDetails;
+            return (
+              <div key={fav._id} className="bg-surface border border-border rounded-2xl overflow-hidden">
+                {cls?.image ? (
+                  <img src={cls.image} alt={cls.className} className="h-36 w-full object-cover" />
+                ) : (
+                  <div className="h-36 w-full bg-border flex items-center justify-center text-gray-500 text-sm">
+                    No Image
+                  </div>
+                )}
+                <div className="p-4">
+                  <h3 className="font-bold mb-1">{cls?.className || 'Unknown Class'}</h3>
+                  <p className="text-sm text-gray-400 mb-1">by {cls?.trainerName || '—'}</p>
+                  <p className="font-bold mb-4"
+                    style={{ background: 'linear-gradient(135deg, #00c896, #00a8ff)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+                    ${cls?.price || '—'}
+                  </p>
+                  <button
+                    onClick={() => removeMutation.mutate(fav._id)}
+                    className="w-full py-2 rounded-lg border border-red-500/30 text-red-400 text-sm font-semibold hover:bg-red-500/10 transition"
+                  >
+                    Remove
+                  </button>
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
     </div>
