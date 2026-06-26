@@ -92,13 +92,17 @@ export default function ClassDetailsPage() {
     <div className="min-h-screen bg-[#0d1117] text-[#e5e7eb] pb-20">
       {/* Hero Section */}
       <div className="relative h-[400px] w-full bg-slate-900">
-        <img 
-          src={classData?.image || "/placeholder.jpg"} 
-          alt={classData?.className || "Class"} 
-          fill 
-          priority
-          className="object-cover opacity-50" 
-        />
+        <Image 
+     src={classData?.image || "/placeholder.jpg"} 
+     alt={classData?.className || "Class"} 
+     fill 
+     priority
+     sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+     className="object-cover opacity-50"
+     onError={(e) => {
+    e.currentTarget.src = "/placeholder.jpg"; 
+  }}
+/>
         <div className="absolute bottom-10 left-0 w-full px-6">
           <div className="max-w-7xl mx-auto">
             <h1 className="text-5xl font-black text-white">{classData?.className}</h1>
