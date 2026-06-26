@@ -18,17 +18,17 @@ export default function ClassDetailsPage() {
   const [isFavorite, setIsFavorite] = useState(false);
   const [actionLoading, setActionLoading] = useState(false);
 
-  useEffect(() => {
+ useEffect(() => {
+   
     if (isPending || !id) return;
 
     const fetchData = async () => {
       try {
-        
         const classRes = await axiosSecure.get(`/classes/${id}`);
         setClassData(classRes.data);
 
-        
-        if (session?.user) {
+       
+        if (session?.user?.email) {
           const email = session.user.email;
           const [enrollRes, favRes] = await Promise.all([
             axiosSecure.get(`/bookings/check-enrollment`, { params: { email, classId: id } }),
@@ -39,13 +39,13 @@ export default function ClassDetailsPage() {
         }
       } catch (err) {
         console.error("Fetch Error:", err);
-        toast.error("Failed to load class details");
+       
       } finally {
         setLoading(false);
       }
     };
     fetchData();
-  }, [id, session, isPending]);
+  }, [id, session?.user?.email, isPending]); 
 
   const handleFavorite = async () => {
     if (!session?.user) {
