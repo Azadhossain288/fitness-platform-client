@@ -10,7 +10,7 @@ export default function ManageClassesPage() {
   const { data, isLoading } = useQuery({
     queryKey: ['allClassesAdmin'],
     queryFn: async () => {
-      const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/classes?limit=100`, { withCredentials: true });
+      const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/classes/all`, { withCredentials: true });
       return res.data;
     },
   });
