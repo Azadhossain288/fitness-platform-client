@@ -92,7 +92,7 @@ export default function ClassDetailsPage() {
     <div className="min-h-screen bg-[#0d1117] text-[#e5e7eb] pb-20">
       {/* Hero Section */}
       <div className="relative h-[400px] w-full bg-slate-900">
-        <Image 
+        <img 
           src={classData?.image || "/placeholder.jpg"} 
           alt={classData?.className || "Class"} 
           fill 
