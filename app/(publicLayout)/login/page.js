@@ -6,7 +6,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import toast from 'react-hot-toast';
 import { signIn } from '@/lib/auth-client';
 
-// ১. আসল কম্পোনেন্ট যেখানে useSearchParams() আছে
+
 function LoginContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -127,7 +127,7 @@ function LoginContent() {
   );
 }
 
-// ২. মেইন এক্সপোর্ট পেজ, যা পুরো কোডকে Suspense দিয়ে মুড়িয়ে প্রটেক্ট করবে
+
 export default function LoginPage() {
   return (
     <Suspense fallback={<div className="min-h-screen flex items-center justify-center text-lime font-bold">Loading IronPulse...</div>}>
