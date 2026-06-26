@@ -2,9 +2,9 @@
 
 import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
-import axios from "axios";
-import { toast } from "react-hot-toast";
+import toast from "react-hot-toast";
 import { authClient } from "@/lib/auth-client";
+import axiosSecure from "@/lib/axios"; 
 import Image from "next/image";
 
 export default function ClassDetailsPage() {
@@ -18,35 +18,34 @@ export default function ClassDetailsPage() {
   const [isFavorite, setIsFavorite] = useState(false);
   const [actionLoading, setActionLoading] = useState(false);
 
-  const API_URL = process.env.NEXT_PUBLIC_API_URL;
-
   useEffect(() => {
     if (isPending || !id) return;
 
     const fetchData = async () => {
-      
-      
       try {
-        const classRes = await axios.get(`${API_URL}/classes/${id}`);
+        
+        const classRes = await axiosSecure.get(`/classes/${id}`);
         setClassData(classRes.data);
 
+        
         if (session?.user) {
           const email = session.user.email;
           const [enrollRes, favRes] = await Promise.all([
-            axios.get(`${API_URL}/bookings/check-enrollment`, { params: { email, classId: id }, withCredentials: true }),
-            axios.get(`${API_URL}/favorites/check/${id}`, { params: { email }, withCredentials: true })
+            axiosSecure.get(`/bookings/check-enrollment`, { params: { email, classId: id } }),
+            axiosSecure.get(`/favorites/check/${id}`, { params: { email } })
           ]);
           setIsEnrolled(enrollRes.data.enrolled);
           setIsFavorite(favRes.data.isFavorite);
         }
       } catch (err) {
+        console.error("Fetch Error:", err);
         toast.error("Failed to load class details");
       } finally {
         setLoading(false);
       }
     };
     fetchData();
-  }, [id, session, isPending, API_URL]);
+  }, [id, session, isPending]);
 
   const handleFavorite = async () => {
     if (!session?.user) {
@@ -58,11 +57,11 @@ export default function ClassDetailsPage() {
     setActionLoading(true);
     try {
       if (isFavorite) {
-        await axios.delete(`${API_URL}/favorites/${id}`, { params: { email: session.user.email }, withCredentials: true });
+        await axiosSecure.delete(`/favorites/${id}`, { params: { email: session.user.email } });
         setIsFavorite(false);
         toast.success("Removed from favorites!");
       } else {
-        await axios.post(`${API_URL}/favorites`, { 
+        await axiosSecure.post(`/favorites`, { 
           email: session.user.email,
           userEmail: session.user.email,
           classId: id,
@@ -70,7 +69,7 @@ export default function ClassDetailsPage() {
           image: classData.image,
           price: classData.price,
           trainerName: classData.trainerName,
-        }, { withCredentials: true });
+        });
         setIsFavorite(true);
         toast.success("Added to favorites!");
       }
@@ -91,6 +90,7 @@ export default function ClassDetailsPage() {
 
   return (
     <div className="min-h-screen bg-[#0d1117] text-[#e5e7eb] pb-20">
+      {/* Hero Section */}
       <div className="relative h-[400px] w-full bg-slate-900">
         <Image 
           src={classData?.image || "/placeholder.jpg"} 
@@ -107,6 +107,7 @@ export default function ClassDetailsPage() {
         </div>
       </div>
 
+      {/* Main Content */}
       <div className="max-w-7xl mx-auto px-6 py-12 grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2 space-y-8">
           <div className="bg-[#161b27] p-8 rounded-2xl border border-[#1e2736]">
@@ -126,6 +127,7 @@ export default function ClassDetailsPage() {
           </div>
         </div>
 
+        {/* Sidebar */}
         <div className="bg-[#161b27] p-6 rounded-2xl border border-[#1e2736] h-fit sticky top-6">
           <div className="text-4xl font-bold text-white mb-2">${classData?.price}</div>
           <p className="text-gray-500 mb-6">per session</p>
