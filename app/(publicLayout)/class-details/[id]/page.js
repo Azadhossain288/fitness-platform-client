@@ -5,6 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import axios from "axios";
 import { toast } from "react-hot-toast";
 import { authClient } from "@/lib/auth-client";
+import Image from "next/image";
 
 export default function ClassDetailsPage() {
   const { id } = useParams();
@@ -17,62 +18,61 @@ export default function ClassDetailsPage() {
   const [isFavorite, setIsFavorite] = useState(false);
   const [actionLoading, setActionLoading] = useState(false);
 
+  const API_URL = process.env.NEXT_PUBLIC_API_URL;
+
   useEffect(() => {
-    if (isPending) return;
-    if (!session?.user) {
-      toast.error("Please login first!");
-      router.push("/login");
-      return;
-    }
-    if (!id) return;
+    if (isPending || !id) return;
 
     const fetchData = async () => {
+      
+      
       try {
-        const email = session.user.email;
-        const [classRes, enrollRes, favRes] = await Promise.all([
-          axios.get(`http://localhost:5000/classes/${id}`, { withCredentials: true }),
-          axios.get(`http://localhost:5000/bookings/check-enrollment`, { params: { email, classId: id }, withCredentials: true }),
-          axios.get(`http://localhost:5000/favorites/check/${id}`, { params: { email }, withCredentials: true })
-        ]);
-        
+        const classRes = await axios.get(`${API_URL}/classes/${id}`);
         setClassData(classRes.data);
-        setIsEnrolled(enrollRes.data.enrolled);
-        setIsFavorite(favRes.data.isFavorite);
-        setLoading(false);
+
+        if (session?.user) {
+          const email = session.user.email;
+          const [enrollRes, favRes] = await Promise.all([
+            axios.get(`${API_URL}/bookings/check-enrollment`, { params: { email, classId: id }, withCredentials: true }),
+            axios.get(`${API_URL}/favorites/check/${id}`, { params: { email }, withCredentials: true })
+          ]);
+          setIsEnrolled(enrollRes.data.enrolled);
+          setIsFavorite(favRes.data.isFavorite);
+        }
       } catch (err) {
         toast.error("Failed to load class details");
+      } finally {
         setLoading(false);
       }
     };
     fetchData();
-  }, [id, session, isPending, router]);
+  }, [id, session, isPending, API_URL]);
 
   const handleFavorite = async () => {
-    if (!session?.user) return;
+    if (!session?.user) {
+      toast.error("Please login to bookmark!");
+      router.push("/login");
+      return;
+    }
+    
     setActionLoading(true);
     try {
       if (isFavorite) {
-        await axios.delete(`http://localhost:5000/favorites/${id}`, { params: { email: session.user.email }, withCredentials: true });
+        await axios.delete(`${API_URL}/favorites/${id}`, { params: { email: session.user.email }, withCredentials: true });
         setIsFavorite(false);
         toast.success("Removed from favorites!");
       } else {
-        await axios.post(`http://localhost:5000/favorites`, 
-  { 
-    email: session.user.email,
-    userEmail: session.user.email,
-    classId: id,
-    className: classData.className,
-    image: classData.image,
-    price: classData.price,
-    trainerName: classData.trainerName,
-  }, 
-
-  
-  { withCredentials: true }
-);
-
-    setIsFavorite(true);
-    toast.success("Added to favorites!");
+        await axios.post(`${API_URL}/favorites`, { 
+          email: session.user.email,
+          userEmail: session.user.email,
+          classId: id,
+          className: classData.className,
+          image: classData.image,
+          price: classData.price,
+          trainerName: classData.trainerName,
+        }, { withCredentials: true });
+        setIsFavorite(true);
+        toast.success("Added to favorites!");
       }
     } catch (err) {
       toast.error("Action failed.");
@@ -81,7 +81,7 @@ export default function ClassDetailsPage() {
     }
   };
 
-  if (isPending || loading || !classData) {
+  if (isPending || loading) {
     return (
       <div className="min-h-screen bg-[#0d1117] flex items-center justify-center text-[#00c896]">
         <div className="animate-pulse tracking-widest uppercase">Loading Details...</div>
@@ -92,11 +92,17 @@ export default function ClassDetailsPage() {
   return (
     <div className="min-h-screen bg-[#0d1117] text-[#e5e7eb] pb-20">
       <div className="relative h-[400px] w-full bg-slate-900">
-        <img src={classData.image} alt={classData.className} className="w-full h-full object-cover opacity-50" />
+        <Image 
+          src={classData?.image || "/placeholder.jpg"} 
+          alt={classData?.className || "Class"} 
+          fill 
+          priority
+          className="object-cover opacity-50" 
+        />
         <div className="absolute bottom-10 left-0 w-full px-6">
           <div className="max-w-7xl mx-auto">
-            <h1 className="text-5xl font-black text-white">{classData.className}</h1>
-            <p className="text-[#00c896] mt-2 font-medium text-xl">by {classData.trainerName}</p>
+            <h1 className="text-5xl font-black text-white">{classData?.className}</h1>
+            <p className="text-[#00c896] mt-2 font-medium text-xl">by {classData?.trainerName}</p>
           </div>
         </div>
       </div>
@@ -105,30 +111,29 @@ export default function ClassDetailsPage() {
         <div className="lg:col-span-2 space-y-8">
           <div className="bg-[#161b27] p-8 rounded-2xl border border-[#1e2736]">
             <h2 className="text-xl font-bold mb-4 flex items-center gap-2 text-white">📖 About This Class</h2>
-            <p className="text-gray-400 leading-relaxed">{classData.description}</p>
+            <p className="text-gray-400 leading-relaxed">{classData?.description}</p>
           </div>
 
           <div className="bg-[#161b27] p-8 rounded-2xl border border-[#1e2736]">
             <h2 className="text-xl font-bold mb-6 flex items-center gap-2 text-white">⭐ Class Details</h2>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
-              <div><p className="text-gray-500 text-xs uppercase">Duration</p><p className="text-white font-medium">{classData.duration}</p></div>
-              <div><p className="text-gray-500 text-xs uppercase">Schedule</p><p className="text-white font-medium">{classData.schedule}</p></div>
-              <div><p className="text-gray-500 text-xs uppercase">Enrolled</p><p className="text-white font-medium">0 students</p></div>
-              <div><p className="text-gray-500 text-xs uppercase">Category</p><p className="text-white font-medium">{classData.category}</p></div>
-              <div><p className="text-gray-500 text-xs uppercase">Difficulty</p><p className="text-white font-medium">{classData.difficulty}</p></div>
-              <div><p className="text-gray-500 text-xs uppercase">Trainer</p><p className="text-white font-medium">{classData.trainerName}</p></div>
+              <div><p className="text-gray-500 text-xs uppercase">Duration</p><p className="text-white font-medium">{classData?.duration}</p></div>
+              <div><p className="text-gray-500 text-xs uppercase">Schedule</p><p className="text-white font-medium">{classData?.schedule}</p></div>
+              <div><p className="text-gray-500 text-xs uppercase">Category</p><p className="text-white font-medium">{classData?.category}</p></div>
+              <div><p className="text-gray-500 text-xs uppercase">Difficulty</p><p className="text-white font-medium">{classData?.difficulty}</p></div>
+              <div><p className="text-gray-500 text-xs uppercase">Trainer</p><p className="text-white font-medium">{classData?.trainerName}</p></div>
             </div>
           </div>
         </div>
 
         <div className="bg-[#161b27] p-6 rounded-2xl border border-[#1e2736] h-fit sticky top-6">
-          <div className="text-4xl font-bold text-white mb-2">${classData.price}</div>
+          <div className="text-4xl font-bold text-white mb-2">${classData?.price}</div>
           <p className="text-gray-500 mb-6">per session</p>
           <div className="space-y-4">
             {isEnrolled ? (
               <button disabled className="w-full py-3 rounded-lg bg-gray-800 text-green-600 cursor-not-allowed font-bold">Already Booked</button>
             ) : (
-              <button onClick={() => router.push(`/payment/${id}`)} className="w-full py-3 rounded-lg bg-[#baff39] text-[#0d1117] font-bold hover:bg-[#a6e62d] transition">Book Now — ${classData.price}</button>
+              <button onClick={() => router.push(`/payment/${id}`)} className="w-full py-3 rounded-lg bg-[#baff39] text-[#0d1117] font-bold hover:bg-[#a6e62d] transition">Book Now — ${classData?.price}</button>
             )}
             <button onClick={handleFavorite} disabled={actionLoading} className="w-full py-3 rounded-lg border border-[#1e2736] text-gray-400 font-bold hover:border-gray-500 transition">
               {isFavorite ? "❤️ Bookmarked" : "🤍 Add to Favorites"}
