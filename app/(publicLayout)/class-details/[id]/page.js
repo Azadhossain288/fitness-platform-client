@@ -56,9 +56,23 @@ export default function ClassDetailsPage() {
         setIsFavorite(false);
         toast.success("Removed from favorites!");
       } else {
-        await axios.post(`http://localhost:5000/favorites`, { email: session.user.email, classId: id }, { withCredentials: true });
-        setIsFavorite(true);
-        toast.success("Added to favorites!");
+        await axios.post(`http://localhost:5000/favorites`, 
+  { 
+    email: session.user.email,
+    userEmail: session.user.email,
+    classId: id,
+    className: classData.className,
+    image: classData.image,
+    price: classData.price,
+    trainerName: classData.trainerName,
+  }, 
+
+  
+  { withCredentials: true }
+);
+
+    setIsFavorite(true);
+    toast.success("Added to favorites!");
       }
     } catch (err) {
       toast.error("Action failed.");
