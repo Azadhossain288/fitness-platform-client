@@ -2,9 +2,10 @@
 
 import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
-import axios from "axios";
-import { toast } from "react-hot-toast";
+import toast from "react-hot-toast";
 import { authClient } from "@/lib/auth-client";
+import axiosSecure from "@/lib/axios"; 
+import Image from "next/image";
 
 export default function PaymentPage() {
   const { id: classId } = useParams();
@@ -23,7 +24,8 @@ export default function PaymentPage() {
       return;
     }
 
-    axios.get(`http://localhost:5000/classes/${classId}`, { withCredentials: true })
+    
+    axiosSecure.get(`/classes/${classId}`)
       .then((res) => {
         setClassData(res.data);
         setLoading(false);
@@ -35,19 +37,18 @@ export default function PaymentPage() {
       });
   }, [classId, session, isPending, router]);
 
-  // Stripe Hosted Checkout redirect function
   const handleCheckout = async () => {
     setProcessing(true);
     try {
-      const response = await axios.post("http://localhost:5000/payments/create-checkout-session", {
+      
+      const response = await axiosSecure.post("/payments/create-checkout-session", {
         className: classData.className,
         price: classData.price,
         classId: classData._id,
         userEmail: session.user.email,
-      }, { withCredentials: true });
+      });
 
       if (response.data.url) {
-        
         window.location.href = response.data.url; 
       }
     } catch (error) {
@@ -80,7 +81,9 @@ export default function PaymentPage() {
           <div className="bg-[#161b27] border border-[#1e2736] p-6 rounded-2xl space-y-6">
             <h3 className="text-lg font-bold text-white border-b border-[#1e2736] pb-3">Order Summary</h3>
             <div className="flex gap-4">
-              <img src={classData.image} alt={classData.className} className="w-24 h-20 object-cover rounded-xl border border-[#1e2736]" />
+              <div className="relative w-24 h-20">
+                <Image src={classData.image} alt={classData.className} fill className="object-cover rounded-xl border border-[#1e2736]" />
+              </div>
               <div>
                 <h4 className="text-base font-bold text-white">{classData.className}</h4>
                 <p className="text-xs text-gray-400 mt-1">Trainer: <span className="text-[#00c896]">{classData.trainerName}</span></p>
@@ -92,7 +95,6 @@ export default function PaymentPage() {
             </div>
           </div>
 
-         
           <div className="bg-[#161b27] border border-[#1e2736] p-6 rounded-2xl">
             <h3 className="text-lg font-bold text-white border-b border-[#1e2736] pb-3 mb-6">Payment Method</h3>
             <p className="text-sm text-gray-400 mb-6">You will be redirected to Stripe to complete your purchase securely.</p>
