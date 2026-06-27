@@ -1,36 +1,52 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# IronPulse — Fitness & Gym Management Platform
 
-## Getting Started
+## Project Purpose
+IronPulse is a comprehensive fitness management platform designed for fitness enthusiasts, gym trainers, and administrators. Users can discover fitness classes, book sessions, participate in community discussions, and track their fitness journey. Trainers can list their classes, manage attendees, and share knowledge. Administrators oversee the entire platform's operations, user roles, and community guidelines.
 
-First, run the development server:
+## 🔗 Live URL
+**fitness-platform-client-rxw4.vercel.app**
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+##  Key Features
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+- **Authentication** — Email/password and Google login using Better Auth with JWT stored in HTTPOnly cookies
+- **Browse & Search Classes** — Search by name ($regex) and filter by category ($in) with server-side pagination
+- **Book Classes** — Stripe-powered checkout with duplicate booking prevention
+- **Favorites** — Save and manage favorite classes from the dashboard
+- **Community Forum** — Trainers and admins post content; users can like, dislike, comment and reply
+- **Role-Based Dashboard** — Separate dashboards for User, Trainer, and Admin
+- **Trainer Application** — Users can apply to become trainers; admins approve or reject with feedback
+- **Admin Controls** — Manage users (block/unblock), classes (approve/reject/delete), trainers, transactions, and forum posts
+- **Responsive Design** — Fully responsive for mobile, tablet, and desktop
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+##  NPM Packages Used
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### Client
+| Package | Version |
+|---------|---------|
+| `next` | 14+ |
+| `better-auth` | latest |
+| `@tanstack/react-query` | ^5 |
+| `axios` | ^1 |
+| `framer-motion` | ^11 |
+| `@stripe/react-stripe-js` | ^2 |
+| `@stripe/stripe-js` | ^3 |
+| `react-hot-toast` | ^2 |
+| `react-icons` | ^5 |
+| `tailwindcss` | ^3 |
+| `mongodb` | ^6 |
 
-## Learn More
+### Server
+| Package | Version |
+|---------|---------|
+| `express` | ^4 |
+| `mongodb` | ^6 |
+| `jsonwebtoken` | ^9 |
+| `cookie-parser` | ^1 |
+| `cors` | ^2 |
+| `dotenv` | ^16 |
+| `stripe` | ^15 |
+| `nodemon` | ^3 |
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## 👤 Admin Credentials
+- **Email:** admin123@gmail.com
+- **Password:** Admin123
